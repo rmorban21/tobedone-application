@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ToBeDone List</title>
+</head>
+<body>
+<h1>ToBeDone List</h1>
+<div id="tobedone-list"></div>
+<script>
+        fetch('/api/v1/tobedones')
+            .then(response => response.json())
+            .then(data => {
+                let toBeDoneList = document.getElementById('tobedone-list');
+                data.forEach(tobedone => {
+                    let toBeDoneItem = document.createElement('div');
+                    toBeDoneItem.textContent = tobedone.title;
+                    toBeDoneList.appendChild(toBeDoneItem);
+                });
+            });
+    </script>
+</body>
+</html>
