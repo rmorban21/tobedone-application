@@ -1,4 +1,5 @@
 package com.ToBeDone.app.ToBeDoneSpringApp.service;
+import com.ToBeDone.app.ToBeDoneSpringApp.entities.Status;
 import com.ToBeDone.app.ToBeDoneSpringApp.entities.ToBeDone;
 import com.ToBeDone.app.ToBeDoneSpringApp.exception.ResourceNotFoundException;
 import com.ToBeDone.app.ToBeDoneSpringApp.repository.ToBeDoneRepository;
@@ -28,6 +29,12 @@ public class ToBeDoneService {
         toBeDone.setTitle(toBeDoneDetails.getTitle());
         toBeDone.setDescription(toBeDoneDetails.getDescription());
         toBeDone.setStatus(toBeDoneDetails.getStatus());
+        return toBeDoneRepository.save(toBeDone);
+    }
+
+    public ToBeDone updateToBeDoneStatus(UUID id, String status) {
+        ToBeDone toBeDone = toBeDoneRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ToBeDone not found"));
+        toBeDone.setStatus(Status.valueOf(status));
         return toBeDoneRepository.save(toBeDone);
     }
 

@@ -30,6 +30,11 @@ public class ToBeDoneController {
         return toBeDoneService.updateToBeDone(id, toBeDoneDetails);
     }
 
+    @PatchMapping("/{id}")
+    public ToBeDone updateToBeDoneStatus(@PathVariable UUID id, @RequestBody String status) {
+        return toBeDoneService.updateToBeDoneStatus(id, status);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteToBeDone(@PathVariable UUID id) {
         toBeDoneService.deleteToBeDone(id);

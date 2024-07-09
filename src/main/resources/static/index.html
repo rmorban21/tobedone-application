@@ -2,21 +2,93 @@
 <html>
 <head>
     <title>ToBeDone List</title>
+    <style>
+        .tobedone-item {
+            margin-bottom: 10px;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: grey;
+        }
+    </style>
 </head>
 <body>
 <h1>ToBeDone List</h1>
-<div id="tobedone-list"></div>
+<div id="tobedone-app"></div>
+<h2>Add a new ToBeDone item</h2>
+<form id="tobedone-form">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+    <br>
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description">
+    <br>
+    <button type="submit">Add</button>
+</form>
 <script>
-        fetch('/api/v1/tobedones')
-            .then(response => response.json())
-            .then(data => {
-                let toBeDoneList = document.getElementById('tobedone-list');
-                data.forEach(tobedone => {
-                    let toBeDoneItem = document.createElement('div');
-                    toBeDoneItem.textContent = tobedone.title;
-                    toBeDoneList.appendChild(toBeDoneItem);
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Fetch and display all ToBeDone items
+            function fetchToBeDones() {
+                fetch('/api/v1/tobedones')
+                    .then(response => response.json())
+                    .then(data => {
+                        let toBeDoneList = document.getElementById('tobedone-list');
+                        toBeDoneList.innerHTML = '';
+                        data.forEach(tobedone => {
+                            let toBeDoneItem = document.createElement('div');
+                            toBeDoneItem.className = 'tobedone-item';
+                            if (tobedone.status === 'COMPLETED') {
+                                toBeDoneItem.classList.add('completed');
+                            }
+                            toBeDoneItem.innerHTML = `
+                                <h3>${tobedone.title}</h3>
+                                <p>${tobedone.description}</p>
+                                <p>Status: ${tobedone.status}</p>
+                                <button onclick="updateStatus('${tobedone.id}', '${tobedone.status === 'PENDING' ? 'COMPLETED' : 'PENDING'}')">
+                                    Mark as ${tobedone.status === 'PENDING' ? 'Completed' : 'Pending'}
+                                </button>
+                            `;
+                            toBeDoneList.appendChild(toBeDoneItem);
+                        });
+                    });
+            }
+
+            // Update ToBeDone status
+            window.updateStatus = function(id, status) {
+                fetch(`/api/v1/tobedones/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: status })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    fetchToBeDones();
+                });
+            }
+
+            // Add new ToBeDone item
+            document.getElementById('tobedone-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                let title = document.getElementById('title').value;
+                let description = document.getElementById('description').value;
+
+                fetch('/api/v1/tobedones', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title: title, description: description, status: 'PENDING' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    fetchToBeDones();
                 });
             });
+
+            fetchToBeDones();
+        });
     </script>
 </body>
 </html>
