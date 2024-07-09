@@ -15,8 +15,8 @@ public class ToBeDoneService {
     @Autowired
     private ToBeDoneRepository toBeDoneRepository;
 
-    public List<ToBeDone> getAllToBeDones() {
-        return toBeDoneRepository.findAll();
+    public List<ToBeDone> getAllToBeDones(UUID userId) {
+        return toBeDoneRepository.findByUserId(userId);
     }
 
     public ToBeDone createToBeDone(ToBeDone toBeDone) {
@@ -29,12 +29,15 @@ public class ToBeDoneService {
         toBeDone.setTitle(toBeDoneDetails.getTitle());
         toBeDone.setDescription(toBeDoneDetails.getDescription());
         toBeDone.setStatus(toBeDoneDetails.getStatus());
+        toBeDone.setDueDate(toBeDoneDetails.getDueDate());
+        toBeDone.setPriority(toBeDoneDetails.getPriority());
+        toBeDone.setCategory(toBeDoneDetails.getCategory());
         return toBeDoneRepository.save(toBeDone);
     }
 
-    public ToBeDone updateToBeDoneStatus(UUID id, String status) {
+    public ToBeDone updateToBeDoneStatus(UUID id, Status status) {
         ToBeDone toBeDone = toBeDoneRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ToBeDone not found"));
-        toBeDone.setStatus(Status.valueOf(status));
+        toBeDone.setStatus(status);
         return toBeDoneRepository.save(toBeDone);
     }
 

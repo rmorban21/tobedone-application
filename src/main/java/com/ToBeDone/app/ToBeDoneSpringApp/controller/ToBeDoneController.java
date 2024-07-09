@@ -1,5 +1,6 @@
 package com.ToBeDone.app.ToBeDoneSpringApp.controller;
 
+import com.ToBeDone.app.ToBeDoneSpringApp.entities.Status;
 import com.ToBeDone.app.ToBeDoneSpringApp.entities.ToBeDone;
 import com.ToBeDone.app.ToBeDoneSpringApp.service.ToBeDoneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,15 +10,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+
 @RestController
 @RequestMapping("/api/v1/tobedones")
 public class ToBeDoneController {
     @Autowired
     private ToBeDoneService toBeDoneService;
 
-    @GetMapping
-    public List<ToBeDone> getAllToBeDones() {
-        return toBeDoneService.getAllToBeDones();
+    @GetMapping("/{userId}")
+    public List<ToBeDone> getAllToBeDones(@PathVariable UUID userId) {
+        return toBeDoneService.getAllToBeDones(userId);
     }
 
     @PostMapping
@@ -30,8 +32,8 @@ public class ToBeDoneController {
         return toBeDoneService.updateToBeDone(id, toBeDoneDetails);
     }
 
-    @PatchMapping("/{id}")
-    public ToBeDone updateToBeDoneStatus(@PathVariable UUID id, @RequestBody String status) {
+    @PatchMapping("/{id}/status")
+    public ToBeDone updateToBeDoneStatus(@PathVariable UUID id, @RequestBody Status status) {
         return toBeDoneService.updateToBeDoneStatus(id, status);
     }
 

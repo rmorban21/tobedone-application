@@ -1,90 +1,227 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ToBeDone List</title>
+    <title>ToBeDone Application</title>
     <style>
-        .tobedone-item {
-            margin-bottom: 10px;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77b300 3px solid;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2em;
+            font-family: 'Pacifico', cursive;
+        }
+        .title {
+            text-align: center;
+            margin: 50px 0;
+        }
+        .list-section {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .list-section h3 {
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .in-progress {
+            background-color: #ffcc99; /* Dark orange */
         }
         .completed {
-            text-decoration: line-through;
-            color: grey;
+            background-color: #ccffcc; /* Green */
+        }
+        .tobedone-item {
+            background: #fff;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .tobedone-item h4 {
+            color: red;
+            font-size: 1.2em;
+            margin: 0;
+        }
+        .completed .tobedone-item h4 {
+            color: green;
+        }
+        .completed .status {
+            color: green;
+            font-weight: bold;
+        }
+        .form-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-container label, .form-container input, .form-container select, .form-container button {
+            margin-bottom: 10px;
+        }
+        .form-container button {
+            background: #77b300;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background: #333;
         }
     </style>
 </head>
 <body>
-<h1>ToBeDone List</h1>
-<div id="tobedone-app"></div>
-<h2>Add a new ToBeDone item</h2>
-<form id="tobedone-form">
-    <label for="title">Title:</label>
-    <input type="text" id="title" name="title" required>
-    <br>
-    <label for="description">Description:</label>
-    <input type="text" id="description" name="description">
-    <br>
-    <button type="submit">Add</button>
-</form>
+<header>
+    <h1>ToBeDone Application</h1>
+</header>
+<div class="container">
+    <div class="title">
+        <h2>Your List of ToBeDones</h2>
+        <p>Add items to your list and mark them as completed when done.</p>
+    </div>
+    <div class="list-section in-progress">
+        <h3>ToBeDones (In Progress)</h3>
+        <div id="in-progress-list"></div>
+    </div>
+    <div class="list-section completed">
+        <h3>Completed</h3>
+        <div id="completed-list"></div>
+    </div>
+    <div class="form-container">
+        <h2>Create a ToBeDone</h2>
+        <form id="tobedone-form">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+            <br>
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description">
+            <br>
+            <label for="dueDate">Due Date:</label>
+            <input type="date" id="dueDate" name="dueDate">
+            <br>
+            <label for="priority">Priority:</label>
+            <select id="priority" name="priority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+            <br>
+            <label for="category">Category:</label>
+            <select id="category" name="category">
+                <option value="WORK">Work</option>
+                <option value="PERSONAL">Personal</option>
+                <option value="HEALTH">Health</option>
+                <option value="FINANCE">Finance</option>
+                <option value="HOME">Home</option>
+                <option value="STUDY">Study</option>
+                <option value="SOCIAL">Social</option>
+                <option value="OTHER">Other</option>
+            </select>
+            <br>
+            <button type="submit">Add</button>
+        </form>
+    </div>
+</div>
 <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            // Fetch and display all ToBeDone items
+            // Generate or retrieve user ID
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = crypto.randomUUID();
+                localStorage.setItem('userId', userId);
+            }
+
             function fetchToBeDones() {
-                fetch('/api/v1/tobedones')
+                fetch(`/api/v1/tobedones/${userId}`)
                     .then(response => response.json())
                     .then(data => {
-                        let toBeDoneList = document.getElementById('tobedone-list');
-                        toBeDoneList.innerHTML = '';
+                        let inProgressList = document.getElementById('in-progress-list');
+                        let completedList = document.getElementById('completed-list');
+                        inProgressList.innerHTML = '';
+                        completedList.innerHTML = '';
                         data.forEach(tobedone => {
                             let toBeDoneItem = document.createElement('div');
                             toBeDoneItem.className = 'tobedone-item';
-                            if (tobedone.status === 'COMPLETED') {
-                                toBeDoneItem.classList.add('completed');
-                            }
                             toBeDoneItem.innerHTML = `
-                                <h3>${tobedone.title}</h3>
+                                <h4>${tobedone.title}</h4>
                                 <p>${tobedone.description}</p>
-                                <p>Status: ${tobedone.status}</p>
+                                <p>Due Date: ${tobedone.dueDate ? new Date(tobedone.dueDate).toLocaleDateString() : 'No due date'}</p>
+                                <p>Priority: ${tobedone.priority}</p>
+                                <p>Category: ${tobedone.category}</p>
+                                <p class="status">Status: ${tobedone.status === 'COMPLETED' ? 'Completed! ✅ Well done!' : 'Pending'}</p>
                                 <button onclick="updateStatus('${tobedone.id}', '${tobedone.status === 'PENDING' ? 'COMPLETED' : 'PENDING'}')">
                                     Mark as ${tobedone.status === 'PENDING' ? 'Completed' : 'Pending'}
                                 </button>
                             `;
-                            toBeDoneList.appendChild(toBeDoneItem);
+                            if (tobedone.status === 'COMPLETED') {
+                                toBeDoneItem.classList.add('completed');
+                                completedList.appendChild(toBeDoneItem);
+                            } else {
+                                inProgressList.appendChild(toBeDoneItem);
+                            }
                         });
-                    });
+                    })
+                    .catch(error => console.error('Error fetching ToBeDones:', error));
             }
 
-            // Update ToBeDone status
             window.updateStatus = function(id, status) {
-                fetch(`/api/v1/tobedones/${id}`, {
-                    method: 'PUT',
+                fetch(`/api/v1/tobedones/${id}/status`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ status: status })
+                    body: JSON.stringify(status)
                 })
                 .then(response => response.json())
                 .then(data => {
                     fetchToBeDones();
-                });
+                })
+                .catch(error => console.error('Error updating status:', error));
             }
 
-            // Add new ToBeDone item
             document.getElementById('tobedone-form').addEventListener('submit', function(event) {
                 event.preventDefault();
                 let title = document.getElementById('title').value;
                 let description = document.getElementById('description').value;
+                let dueDate = document.getElementById('dueDate').value;
+                let priority = document.getElementById('priority').value;
+                let category = document.getElementById('category').value;
 
                 fetch('/api/v1/tobedones', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ title: title, description: description, status: 'PENDING' })
+                    body: JSON.stringify({ title: title, description: description, dueDate: dueDate, priority: priority, category: category, status: 'PENDING', userId: userId })
                 })
                 .then(response => response.json())
                 .then(data => {
                     fetchToBeDones();
-                });
+                })
+                .catch(error => console.error('Error adding ToBeDone:', error));
             });
 
             fetchToBeDones();

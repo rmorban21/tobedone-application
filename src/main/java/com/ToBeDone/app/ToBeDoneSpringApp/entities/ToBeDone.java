@@ -1,6 +1,7 @@
 package com.ToBeDone.app.ToBeDoneSpringApp.entities;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,6 +15,20 @@ public class ToBeDone {
     @Enumerated(EnumType.STRING)
     private Status status;
     private LocalDateTime createdDate;
+    private LocalDate dueDate;
+    @Enumerated(EnumType.STRING)
+    private Priority priority;
+    @Enumerated(EnumType.STRING)
+    private Category category;
+    private UUID userId;
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
 
     public UUID getId() {
         return id;
@@ -54,4 +69,30 @@ public class ToBeDone {
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
 }
+
